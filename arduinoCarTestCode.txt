@@ -1,0 +1,94 @@
+#include <Servo.h>
+Servo myservo;
+int pos = 0;
+int pwm_a = 3;  
+int pwm_b = 9;  
+int dir_a = 2;   
+int dir_b = 8; 
+byte first;
+byte second;
+byte third; 
+bool wire = false;
+
+void setup()
+{
+  Serial.begin(9600);
+  myservo.attach(5);
+  pinMode(pwm_a, OUTPUT); 
+  pinMode(pwm_b, OUTPUT);
+  pinMode(dir_a, OUTPUT);
+  pinMode(dir_b, OUTPUT);
+  controls();
+}
+void loop(){
+  if (Serial.available() > 0) {
+    first = Serial.read();delay(10);
+    second = Serial.read();delay(10);
+    third = Serial.parseInt();delay(10);
+    wire = true;
+  }else{
+    if(first != 0 && wire == true){
+      Serial.write(first);
+      Serial.write(second);
+      Serial.println(third,DEC);
+      wire = false;
+      if (first == 'A' || first == 'a'){
+        if (second == 'F' || second == 'f'){digitalWrite(dir_a,LOW);}
+        if (second == 'R' || second == 'r'){digitalWrite(dir_a,HIGH);}
+        analogWrite(pwm_a,third);
+        }
+      if (first == 'B' || first == 'b'){
+        if (second == 'F' || second == 'f'){digitalWrite(dir_b,LOW);}
+        if (second == 'R' || second == 'r'){digitalWrite(dir_b,HIGH);}
+        analogWrite(pwm_b,third);}
+      if (first == 'C' || first == 'c'){              
+        if (second == 'F' || second == 'f'){
+          analogWrite(pwm_a,third);
+          analogWrite(pwm_b,third);
+          digitalWrite(dir_a,LOW);
+          digitalWrite(dir_b,LOW);
+        }
+        if (second == 'R' || second == 'r'){
+          analogWrite(pwm_a,third);
+          analogWrite(pwm_b,third);
+          digitalWrite(dir_a,HIGH);
+          digitalWrite(dir_b,HIGH);
+        }
+      }
+      if (first == 'L' || first == 'l'){
+        if (second == 'L' || second == 'l'){
+          analogWrite(pwm_a,third);
+          analogWrite(pwm_b,third);
+          digitalWrite(dir_a,HIGH);
+          digitalWrite(dir_b,LOW);
+        }
+      }
+      if (first == 'R' || first == 'r'){
+        if (second == 'R' || second == 'r'){
+        analogWrite(pwm_a,third);
+        analogWrite(pwm_b,third);
+        digitalWrite(dir_a,LOW);
+        digitalWrite(dir_b,HIGH);
+        }
+      }
+      if (first == 'U' || first == 'u'){myservo.write(90);delay(15);}
+      if (first == 'D' || first == 'd'){myservo.write(180);delay(15);}
+      if (first == 'M' || first == 'm'){controls();}
+      }
+    }
+}
+void controls(){
+  Serial.println("controlls for test program");
+  Serial.println("AF255 - Left motor forward full speed");
+  Serial.println("AR255 - Left motor reverse full speed");
+  Serial.println("BF255 - right motor forward full speed");
+  Serial.println("BR255 - right motor reverse full speed");
+  Serial.println("CF255 - both motors forward full speed");
+  Serial.println("CR255 - both motors reverse full speed");
+  Serial.println("LL255 - both motors conteract to the left");
+  Serial.println("RR255 - both motors conteract to the right");
+  Serial.println("U - push car up");
+  Serial.println("D - lower the car");
+  Serial.println("zero (0) i.ex CF0 stops that motor"); 
+  Serial.println("M - dumps this menu to you again.");
+  }
